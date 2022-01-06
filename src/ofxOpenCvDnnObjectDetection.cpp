@@ -620,11 +620,12 @@ void ofxOpenCvDnnObjectDetection::postprocess(Mat& frame, const std::vector<Mat>
 
 					classIds.push_back(classIdPoint.x);
 					confidences.push_back((float)confidence);
-					boxes.push_back(cv::Rect(int(left), int(top), int(width), int(height)));
+					boxes.push_back(cv::Rect(int(left* input_width), int(top * input_height), int(width * input_width) , int(height * input_height)));
 
                     String label = String(classNamesVec[classIdPoint.x]);
 //                    ofRectangle r(left,top,width,height);
-					rects.emplace_back(left,top,width,height);
+//					rects.emplace_back(left * input_width, top * input_height, width * input_width, height * input_height);
+					rects.emplace_back(left, top, width, height);
 					labels.push_back(label);
 //                    object.push_back(::Object(classIdPoint.x, label, confidence, r.x,r.y, r.width, r.height));
                 }
@@ -637,11 +638,9 @@ void ofxOpenCvDnnObjectDetection::postprocess(Mat& frame, const std::vector<Mat>
 
     std::vector<int> indices;
     NMSBoxes(boxes, confidences, confidenceThreshold, nmsThreshold, indices);
-	for (size_t i = 0; i < indices.size(); ++i) {
-		cout << i << " : " << indices[i] << endl;
-	}
     for (size_t i = 0; i < indices.size(); ++i)
     {
+		//		cout << i << " : " << indices[i] << endl;
         int idx = indices[i];
         cv::Rect box = boxes[idx];
 		object.push_back(::Object(classIds[idx], labels[idx], confidences[idx], rects[idx]));
